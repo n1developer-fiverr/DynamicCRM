@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" xmlns:viewmodels="clr-namespace:DCrm.ViewModels"
+             x:Class="DCrm.MainPage"
+             >
+
+    <ContentPage.BindingContext>
+        <viewmodels:MainPageViewModel/>
+    </ContentPage.BindingContext>
+
+    <StackLayout>
+        <Frame BackgroundColor="#2196F3" Margin="0,24,0,0"  Padding="10" CornerRadius="0">
+            <Label Text="Customers" HorizontalTextAlignment="Center" TextColor="White" FontSize="36"/>
+        </Frame>
+
+        <CollectionView ItemsSource="{Binding Accounts}">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <StackLayout>
+                        <Label Text="Name" ></Label>
+                        <Label Text="Address"></Label>
+                    </StackLayout>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+           
+        </CollectionView>
+    </StackLayout>
+
+</ContentPage>
