@@ -14,5 +14,16 @@ namespace DCrm
         {
             InitializeComponent();
         }
+
+
+        private async void ClickGestureRecognizer_OnClicked(object sender, EventArgs e)
+        {
+
+        }
+
+        private void TapGestureRecognizer_OnTapped(object sender, EventArgs e)
+        {
+            Application.Current.MainPage.DisplayAlert("Title", "sasas", "OK");
+        }
     }
 }

@@ -2,6 +2,7 @@
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" xmlns:viewmodels="clr-namespace:DCrm.ViewModels"
              x:Class="DCrm.MainPage"
+             x:Name="This"
              >
 
     <ContentPage.BindingContext>
@@ -16,13 +17,19 @@
         <CollectionView ItemsSource="{Binding Accounts}">
             <CollectionView.ItemTemplate>
                 <DataTemplate>
-                    <StackLayout>
-                        <Label Text="Name" ></Label>
-                        <Label Text="Address"></Label>
+                    <StackLayout Margin="5" >
+                        <StackLayout.GestureRecognizers>
+                            <TapGestureRecognizer   Command="{Binding BindingContext.AccountSelected, Source={x:Reference This}}" CommandParameter="{Binding .}"/>
+
+                        </StackLayout.GestureRecognizers>
+                        <StackLayout >
+                            <Label FontSize="Medium" Text="{Binding Name}" ></Label>
+                            <Label Text="{Binding Address}"></Label>
+                        </StackLayout>
                     </StackLayout>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
-           
+
         </CollectionView>
     </StackLayout>
 

@@ -6,6 +6,7 @@ using System.Net.Http.Headers;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using System.Text;
+using System.Windows.Input;
 
 namespace DCrm.Helpers
 {
@@ -53,7 +54,7 @@ namespace DCrm.Helpers
             client.DefaultRequestHeaders.Authorization = header;
         }
 
-        public async Task<List<Accounts>> GetAccounts(int limit = 5)
+        public async Task<List<Account>> GetAccounts(int limit = 50)
         {
             var r = await client.GetAsync($"accounts?$top={limit}");
             var result = await r.Content.ReadAsStringAsync();
@@ -61,11 +62,11 @@ namespace DCrm.Helpers
             JObject body = JObject.Parse(result);
             var values = body["value"].ToObject<JArray>();
 
-            List<Accounts> accounts = new List<Accounts>();
+            List<Account> accounts = new List<Account>();
 
             foreach (var v in values)
             {
-                accounts.Add(new Accounts()
+                accounts.Add(new Account()
                 {
                     Name = (string)v["name"],
                     Address = GetAddresss((string)v["address1_line1"], (string)v["address1_city"], (string)v["address1_country"])
@@ -93,9 +94,11 @@ namespace DCrm.Helpers
         }
     }
 
-    public class Accounts
+    public class Account
     {
+
         public string Name { get; set; }
         public string Address { get; set; }
+
     }
 }
