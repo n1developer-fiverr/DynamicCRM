@@ -2,8 +2,8 @@
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using Acr.UserDialogs;
 using DCrm.Helpers;
-using Newtonsoft.Json;
 using Xamarin.Forms;
 
 namespace DCrm.ViewModels
@@ -14,7 +14,7 @@ namespace DCrm.ViewModels
 
         public MainPageViewModel()
         {
-            Accounts = new ObservableCollection<Account> { new Account { Address = "address1", Name = "Name" } };
+            Accounts = new ObservableCollection<Account> { new Account { AllowUpdate=false,Address = "Wait", Name = "Loading" } };
 
             Task.Run(async () =>
             {
@@ -23,18 +23,50 @@ namespace DCrm.ViewModels
 
             AccountSelected = new Command<Account>(async (a) =>
             {
-                await Application.Current.MainPage.DisplayAlert("Title", a.Name, "OK");
-            }, (a) => true);
+                if (!a.AllowUpdate)
+                    return;
+
+                var result = await UserDialogs.Instance.PromptAsync(new PromptConfig
+                {
+                    InputType = InputType.Name,
+                    OkText = "Change",
+                    Title = "Enter New Column Break",
+                    Text = a.ColumnBreak
+                });
+
+                if(result.Ok && result.Text != null && !result.Text.Trim().Equals(""))
+                {
+                    a.ColumnBreak = result.Text;
+
+                    isUpdating = true;
+
+                    var ok = await crm.Update(a);
+
+                    var message = ok ? "Account Updated!" : "Unable to update!";
+
+                    await UserDialogs.Instance.AlertAsync(new AlertConfig
+                    {
+                        Title="Message",
+                        Message= message,
+                        OkText="Ok"
+                    });
+                    isUpdating= false;
+                }
+            }, _ => !isUpdating);
         }
+
+        private bool isUpdating = false;
+
+        private Crm crm;
 
         public async Task Update()
         {
-            Crm c = new Crm();
+            crm = new Crm();
 
-            await c.Setup();
+            await crm.Setup();
 
-            var accounts = await c.GetAccounts();
-
+            var accounts = await crm.GetAccounts();
+            Accounts.RemoveAt(0);
             accounts.ForEach(a => Accounts.Add(a));
         }
 

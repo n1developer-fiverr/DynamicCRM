@@ -47,14 +47,33 @@ namespace DCrm.Helpers
         public async Task Setup()
         {
 
-            var header = new AuthenticationHeaderValue("Bearer", await GetToken());
+            var token = await GetToken();
+            Console.WriteLine(token);
+            Console.WriteLine("\n\n\n\n\n\n\n");
+            Console.WriteLine(token);
+            var header = new AuthenticationHeaderValue("Bearer", token);
 
             client = new HttpClient();
             client.BaseAddress = new Uri(webApiUrl);
             client.DefaultRequestHeaders.Authorization = header;
         }
 
-        public async Task<List<Account>> GetAccounts(int limit = 50)
+        public async Task<bool> Update(Account account)
+        {
+            //new_columnbreak
+
+            var toCall = $"accounts({account.Id})";
+
+            HttpRequestMessage message = new HttpRequestMessage(new HttpMethod("PATCH"), toCall);
+            message.Content = new StringContent($"{{\"new_columnbreak\": \"{account.ColumnBreak}\"}}", Encoding.UTF8,
+                                    "application/json");
+
+            var response = await client.SendAsync(message);
+
+            return response.IsSuccessStatusCode;
+        }
+
+        public async Task<List<Account>> GetAccounts(int limit = 5)
         {
             var r = await client.GetAsync($"accounts?$top={limit}");
             var result = await r.Content.ReadAsStringAsync();
@@ -69,6 +88,8 @@ namespace DCrm.Helpers
                 accounts.Add(new Account()
                 {
                     Name = (string)v["name"],
+                    Id = (string)v["accountid"],
+                    ColumnBreak = (string)v["new_columnbreak"],
                     Address = GetAddresss((string)v["address1_line1"], (string)v["address1_city"], (string)v["address1_country"])
 
                 });
@@ -99,6 +120,8 @@ namespace DCrm.Helpers
 
         public string Name { get; set; }
         public string Address { get; set; }
-
+        public string Id { get; set; }
+        public string ColumnBreak { get; set; }
+        public bool AllowUpdate { get; set; } = true;
     }
 }
