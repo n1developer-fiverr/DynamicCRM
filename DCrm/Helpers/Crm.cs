@@ -7,11 +7,21 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using System.Text;
 using System.Windows.Input;
+using DCrm.Models;
 
 namespace DCrm.Helpers
 {
     public class Crm
     {
+        public static Crm AuthenticatedCrmService { get; private set; }
+
+        public static void Setup(string accessCode)
+        {
+            AuthenticatedCrmService = new Crm();
+            AuthenticatedCrmService.SetToken(accessCode);
+            Console.WriteLine("Token");
+            Console.WriteLine(accessCode);
+        }
 
         private static string username = "appuser@krplastic.com";
         private static string password = "P@$$W0rd!";
@@ -36,6 +46,8 @@ namespace DCrm.Helpers
 
             var response = await client.PostAsync(tokenEndpoint, stringContent);
 
+            Console.WriteLine(response.Content.ReadAsStringAsync().Result);
+
             Console.WriteLine(response.StatusCode);
             JObject jobject = JObject.Parse(response.Content.ReadAsStringAsync().Result);
 
@@ -48,14 +60,19 @@ namespace DCrm.Helpers
         {
 
             var token = await GetToken();
-            Console.WriteLine(token);
-            Console.WriteLine("\n\n\n\n\n\n\n");
-            Console.WriteLine(token);
-            var header = new AuthenticationHeaderValue("Bearer", token);
+            this.SetToken(token);
+        }
+
+        public void SetToken(string code)
+        {
+            var header = new AuthenticationHeaderValue("Bearer", code);
 
             client = new HttpClient();
             client.BaseAddress = new Uri(webApiUrl);
             client.DefaultRequestHeaders.Authorization = header;
+
+            Console.WriteLine("AccessToken");
+            Console.WriteLine(code);
         }
 
         public async Task<bool> Update(Account account)
@@ -70,14 +87,20 @@ namespace DCrm.Helpers
 
             var response = await client.SendAsync(message);
 
+            Console.WriteLine("Response");
+            Console.WriteLine(await message.Content.ReadAsStringAsync());
+
             return response.IsSuccessStatusCode;
         }
 
         public async Task<List<Account>> GetAccounts(int limit = 5)
         {
-            var r = await client.GetAsync($"accounts?$top={limit}");
+            var r = await client.GetAsync($"accounts?$top={limit}&$select=_ownerid_value,name,new_columnbreak,accountid,accountid,address1_line1,address1_city,address1_country");
             var result = await r.Content.ReadAsStringAsync();
-
+            Console.WriteLine(r.StatusCode);
+            Console.WriteLine(r.StatusCode);
+            Console.WriteLine(r.StatusCode);
+            Console.WriteLine(r.StatusCode);
             JObject body = JObject.Parse(result);
             var values = body["value"].ToObject<JArray>();
 
@@ -90,8 +113,8 @@ namespace DCrm.Helpers
                     Name = (string)v["name"],
                     Id = (string)v["accountid"],
                     ColumnBreak = (string)v["new_columnbreak"],
-                    Address = GetAddresss((string)v["address1_line1"], (string)v["address1_city"], (string)v["address1_country"])
-
+                    Address = GetAddresss((string)v["address1_line1"], (string)v["address1_city"], (string)v["address1_country"]),
+                    OwnerId = (string)v["_ownerid_value"]
                 });
             }
 
@@ -115,13 +138,4 @@ namespace DCrm.Helpers
         }
     }
 
-    public class Account
-    {
-
-        public string Name { get; set; }
-        public string Address { get; set; }
-        public string Id { get; set; }
-        public string ColumnBreak { get; set; }
-        public bool AllowUpdate { get; set; } = true;
-    }
 }

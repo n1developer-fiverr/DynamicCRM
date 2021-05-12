@@ -14,7 +14,9 @@
             <Label Text="Customers" HorizontalTextAlignment="Center" TextColor="White" FontSize="36"/>
         </Frame>
 
-        <CollectionView ItemsSource="{Binding Accounts}">
+        <Button Text="Logout" Command="{Binding LogoutCommand}" Margin="0,5,0,5"/>
+
+        <CollectionView ItemsSource="{Binding Accounts}" Margin="5">
             <CollectionView.ItemTemplate>
                 <DataTemplate>
                     <StackLayout Margin="5" >
@@ -25,6 +27,10 @@
                         <StackLayout >
                             <Label FontSize="Medium" Text="{Binding Name}" ></Label>
                             <Label Text="{Binding Address}"></Label>
+                            <StackLayout Orientation="Horizontal">
+                                <Label Text="OwnerId: "/>
+                                <Label Text="{Binding OwnerId}"/>
+                            </StackLayout>
                         </StackLayout>
                     </StackLayout>
                 </DataTemplate>

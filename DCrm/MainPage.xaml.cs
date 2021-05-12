@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DCrm.ViewModels;
 using Xamarin.Forms;
 
 namespace DCrm
@@ -13,6 +14,8 @@ namespace DCrm
         public MainPage()
         {
             InitializeComponent();
+            ((MainPageViewModel)BindingContext).Navigation = Navigation;
+
         }
 
 
@@ -23,7 +26,7 @@ namespace DCrm
 
         private void TapGestureRecognizer_OnTapped(object sender, EventArgs e)
         {
-            Application.Current.MainPage.DisplayAlert("Title", "sasas", "OK");
+            //Application.Current.MainPage.DisplayAlert("Title", "sasas", "OK");
         }
     }
 }

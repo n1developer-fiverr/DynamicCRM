@@ -4,6 +4,9 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using Acr.UserDialogs;
 using DCrm.Helpers;
+using DCrm.Models;
+using DCrm.Services;
+using DCrm.Views;
 using Xamarin.Forms;
 
 namespace DCrm.ViewModels
@@ -11,14 +14,26 @@ namespace DCrm.ViewModels
     public class MainPageViewModel
     {
         public ObservableCollection<Account> Accounts { get; set; }
+        public INavigation Navigation { get; set; }
+        public ICommand LogoutCommand { get; set; }
+        AdAuthenticationService authService;
 
         public MainPageViewModel()
         {
             Accounts = new ObservableCollection<Account> { new Account { AllowUpdate=false,Address = "Wait", Name = "Loading" } };
+            authService = new AdAuthenticationService();
 
             Task.Run(async () =>
             {
-                await Update();
+
+                if (!authService.IsAuthenticated)
+                {
+                    var response = authService.Authenticate();
+
+                    await Update(response.AccessToken);
+                }
+                else await Update(authService.AccessToken);
+
             });
 
             AccountSelected = new Command<Account>(async (a) =>
@@ -26,6 +41,9 @@ namespace DCrm.ViewModels
                 if (!a.AllowUpdate)
                     return;
 
+                await Navigation.PushAsync(new AccountUpdateView(a));
+
+                return;
                 var result = await UserDialogs.Instance.PromptAsync(new PromptConfig
                 {
                     InputType = InputType.Name,
@@ -53,17 +71,22 @@ namespace DCrm.ViewModels
                     isUpdating= false;
                 }
             }, _ => !isUpdating);
+
+            LogoutCommand = new Command(new Action(() => {
+                authService.Logout();
+                Environment.Exit(Environment.ExitCode);
+            }));
         }
 
         private bool isUpdating = false;
 
         private Crm crm;
 
-        public async Task Update()
+        public async Task Update(string accessToken)
         {
-            crm = new Crm();
+            Crm.Setup(accessToken);
 
-            await crm.Setup();
+            crm = Crm.AuthenticatedCrmService;
 
             var accounts = await crm.GetAccounts();
             Accounts.RemoveAt(0);
