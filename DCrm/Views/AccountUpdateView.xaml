@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<ContentPage
+    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" xmlns:viewmodels="clr-namespace:DCrm.ViewModels"
+    x:Class="DCrm.Views.AccountUpdateView">
+
+    <ContentPage.BindingContext>
+        <viewmodels:UpdateAccountViewModel/>
+    </ContentPage.BindingContext>
+
+    <ContentPage.Content >
+        <StackLayout>
+            <Frame BackgroundColor="#2196F3" Margin="0,24,0,0"  Padding="10" CornerRadius="0">
+                <Label Text="Update Customer" HorizontalTextAlignment="Center" TextColor="White" FontSize="36"/>
+            </Frame>
+
+            <StackLayout Padding="5">
+                <Label Text="{Binding Account.Name}" FontSize="Large" HorizontalTextAlignment="Center"/>
+
+                <Entry Text="{Binding Account.ColumnBreak}"/>
+
+                <Button Text="Update" Command="{Binding UpdateCommand}"/>
+            </StackLayout>
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>
